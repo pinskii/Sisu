@@ -14,9 +14,9 @@ coverage:
     - mvn test
   artifacts:
     paths:
-    - target/classes/fi/tuni/prog3/sisu
-    - target/test-classes/fi/tuni/prog3/sisu
-    - target/site/jacoco/jacoco.xml
+    - Sisu/target/classes/fi/tuni/prog3/sisu
+    - Sisu/target/test-classes/fi/tuni/prog3/sisu
+    - Sisu/target/site/jacoco/jacoco.xml
     expire_in: 30 mins
 
 
