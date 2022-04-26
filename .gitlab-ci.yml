@@ -4,30 +4,34 @@ stages:
 
 coverage:
   stage: coverage
+  tags:
+    - compcs140
   image:
     name: "maven:3.6.3-openjdk-11"
   script:
+    - cd Sisu
     - mvn compile
     - mvn test
   artifacts:
     paths:
-    - target/classes
-    - target/test-classes
-    - target/site/jacoco/jacoco.xml
+    - Sisu/target/classes/fi/tuni/prog3/sisu
+    - Sisu/target/test-classes/fi/tuni/prog3/sisu
+    - Sisu/target/site/jacoco/jacoco.xml
     expire_in: 30 mins
-  only:
-    refs:
-      - master
+
 
 sonarqube-check:
   stage: sonarqube-check
+  tags:
+    - compcs140
   image:
     name: "sonarsource/sonar-scanner-cli:4.3"
     entrypoint: [""]
   dependencies:
     - coverage
   script:
-    - sonar-scanner -Dsonar.projectKey=$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME -Dsonar.java.binaries=target/classes -Dsonar.java.test.binaries=target/test-classes -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -Dsonar.tests=src/test -Dsonar.sources=src/main
+    - sonar-scanner -X -Dsonar.projectKey=$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME -Dsonar.java.binaries=Sisu/target/classes/fi/tuni/prog3/sisu -Dsonar.java.test.binaries=Sisu/target/test-classes/fi/tuni/prog3/sisu -Dsonar.coverage.jacoco.xmlReportPaths=Sisu/target/site/jacoco/jacoco.xml -Dsonar.sources=Sisu/src/main/java/fi/tuni/prog3/sisu
   only:
     refs:
-      - master
+      - main
+
