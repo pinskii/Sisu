@@ -1,13 +1,16 @@
 package fi.tuni.prog3.sisu;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -21,6 +24,7 @@ public class Sisu extends Application {
 
         stage.setTitle("Sisu");
 
+        // Asetussivu
         GridPane grid = new GridPane();
         Scene firstScene = new Scene(grid, 640, 480);
         stage.setScene(firstScene);
@@ -43,15 +47,22 @@ public class Sisu extends Application {
         TextField inputNum = new TextField();
         grid.add(inputNum, 1, 3);
 
+        HBox hbBtn = new HBox(10);
+        hbBtn.setAlignment(Pos.BASELINE_RIGHT);
+        grid.add(hbBtn, 1, 4);
+
         Button btn = new Button("Seuraava");
-        grid.add(btn,1,4);
+        hbBtn.getChildren().add(btn);
+
+        Button exitBtn = new Button("Eiku");
+        hbBtn.getChildren().add(exitBtn);
 
         Label error = new Label();
         grid.add(error,0,5,2,1);
 
         stage.setScene(firstScene);
-        stage.show();
 
+        // Päänäkymä
         GridPane grid1 = new GridPane();
         Scene mainScene = new Scene(grid1,640, 480);
 
@@ -68,6 +79,12 @@ public class Sisu extends Application {
                 }
             }
         });
+
+        exitBtn.setOnAction((event) -> {stage.close();});
+        stage.setOnCloseRequest((event) -> { Platform.exit();});
+
+
+        stage.show();
     }
 
     public static void main(String[] args) {
