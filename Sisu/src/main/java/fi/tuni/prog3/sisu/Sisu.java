@@ -1,5 +1,11 @@
 package fi.tuni.prog3.sisu;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -86,8 +92,22 @@ public class Sisu extends Application {
 
         stage.show();
     }
+    
+    private static Course readCourseValues(String jsonFile) 
+            throws FileNotFoundException {
+        
+        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile)).getAsJsonObject();
+        String code = root.getAsJsonObject("code").getAsString();
+        String name = root.getAsJsonObject("name").getAsJsonObject("fi").getAsString();
+        int minCredit = root.getAsJsonObject("credits").getAsJsonObject("min").getAsInt();
+        int maxCredit = root.getAsJsonObject("credits").getAsJsonObject("max").getAsInt();
+        Course newCourse = new Course(name, code, minCredit, maxCredit);
+        System.out.print(newCourse.getName());
+        System.out.print(newCourse.getCode());
+        return newCourse;
+    }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         launch();
     }
 
