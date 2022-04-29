@@ -106,6 +106,16 @@ public class Sisu extends Application {
         System.out.print(newCourse.getCode());
         return newCourse;
     }
+    
+    public static Map<String, Course> readCoursesFromJsons(String args[]) 
+        throws FileNotFoundException {
+        Map<String, Course> courseMap = new HashMap<>();
+        
+        for(String file : args) {
+            Course course = readCourseValues(file);
+            courseMap.put(course.getCode(), course);
+        }
+    }
 
     public static void main(String[] args) throws FileNotFoundException {
         launch();
