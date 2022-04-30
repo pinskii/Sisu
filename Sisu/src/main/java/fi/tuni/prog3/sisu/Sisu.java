@@ -1,6 +1,8 @@
 package fi.tuni.prog3.sisu;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.FileNotFoundException;
@@ -25,7 +27,7 @@ import javafx.stage.Stage;
 
 public class Sisu extends Application {
     
-    List<String> filenames = Arrays.asList(
+    static List<String> courseFileNames = Arrays.asList(
             "otm-1dc4fc64-39fd-4575-aef6-280199870f71.json",
             "otm-1e8f1023-1977-4f98-9386-110ef623327b.json",
             "otm-2966b2c5-7c94-491f-8c9d-ed918ce13869.json",
@@ -41,6 +43,18 @@ public class Sisu extends Application {
             "otm-d1e98258-622d-4fbc-9f5e-204a3100f949.json",
             "otm-dd0c337e-b2f0-45d0-9a28-d3bbe287ff64.json",
             "otm-ec562ecd-50e3-4abb-9e50-88102bfcc2de.json");
+    
+    static List<String> moduleFileNames = Arrays.asList(
+            "otm-6b575bfa-e488-4ee0-a8d9-877608ce64e9.json",
+            "otm-010acb27-0e5a-47d1-89dc-0f19a43a5dca.json",
+            "otm-11eeddac-ac46-4b72-973d-928b8cdc922c.json",
+            "otm-73c44ab7-259c-4ba3-9247-27597af07443.json",
+            "otm-91c6f8f4-5662-46a0-9adc-cb84aac38293.json",
+            "otm-3990be25-c9fd-4dae-904c-547ac11e8302.json",
+            "otm-4535973c-4aa6-4f3f-b560-38e3cbc3baaf.json",
+            "otm-dfcd98b1-4f28-4095-874f-178413c11869.json",
+            "otm-f0f2f2fd-6e2f-4975-a4b3-2c46532d34a1.json"
+            );
 
     @Override
     public void start(Stage stage) throws FileNotFoundException {
@@ -103,18 +117,27 @@ public class Sisu extends Application {
             }
         });
         
-        Text mainscenetitle = new Text("Kurssit:");
+        Text mainscenetitle = new Text("Tutkintorakenne:");
         grid1.add(mainscenetitle, 0, 0, 2, 1);
 
-        Map<String, Course> courses = readCoursesFromJsons(filenames);
+        Map<String, Course> courses = readCoursesFromJsons(courseFileNames);
+        Map<String, Module> modules = readModulesFromJsons(moduleFileNames);
         
         int i = 1;
         
-        for(var course : courses.values()) {
-            Text courseinfo = new Text(course.getCode() + " " + course.getName() 
-                    + " " + course.getMaxCredit());
-            grid1.add(courseinfo, 0, i, 2, 1);
-            i++;
+        for (var module : modules.values()) {
+            ArrayList<Course> moduleCourses = module.getCourses();
+            Text moduleinfo = new Text(module.getName());
+            grid1.add(moduleinfo, 0, i, 2, 1);
+            int j = 2;
+            for(var course : moduleCourses) {
+            
+                Text courseinfo = new Text("   " + course.getCode() + " " + course.getName() 
+                        + " " + course.getMaxCredit());
+                grid1.add(courseinfo, 0, j, 2, 1);
+                i++;
+                j++;
+            }
         }
         
         exitBtn.setOnAction((event) -> {stage.close();});
@@ -127,7 +150,8 @@ public class Sisu extends Application {
     private static Course readCourseValues(String jsonFile) 
             throws FileNotFoundException {
         
-        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile)).getAsJsonObject();
+        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile))
+                .getAsJsonObject();
         String code = root.getAsJsonPrimitive("code").getAsString();
         JsonObject nameObj = root.getAsJsonObject("name");
         String name = nameObj.getAsJsonPrimitive("fi").getAsString();
@@ -135,7 +159,8 @@ public class Sisu extends Application {
         JsonObject maxObj = root.getAsJsonObject("credits");
         int minCredit = minObj.getAsJsonPrimitive("min").getAsInt();
         int maxCredit = maxObj.getAsJsonPrimitive("max").getAsInt();
-        Course newCourse = new Course(name, code, minCredit, maxCredit);
+        String groupId = root.getAsJsonPrimitive("groupId").getAsString();
+        Course newCourse = new Course(name, code, minCredit, maxCredit, groupId);
         System.out.print(newCourse.getName());
         System.out.print(newCourse.getCode());
         return newCourse;
@@ -147,9 +172,91 @@ public class Sisu extends Application {
         
         for(String file : files) {
             Course course = readCourseValues(file);
-            courseMap.put(course.getCode(), course);
+            courseMap.put(course.getGroupId(), course);
         }
         return courseMap;
+    }
+    
+    private static Module readModuleValues(String jsonFile) 
+            throws FileNotFoundException {
+        Map<String, Course> courses = readCoursesFromJsons(courseFileNames);
+        ArrayList<Course> moduleCourses = new ArrayList<>();
+        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile))
+                .getAsJsonObject();
+        String type = root.getAsJsonPrimitive("type").getAsString();
+        if (!(type.equals("DegreeProgramme"))) {
+            
+            JsonObject nameObj = root.getAsJsonObject("name");
+            String name = nameObj.getAsJsonPrimitive("fi").getAsString();
+            
+            String code = "";
+            
+            if (!(root.get("code").isJsonNull())) {
+                code = root.getAsJsonPrimitive("code").getAsString();
+            }
+            
+            
+            String groupId = root.getAsJsonPrimitive("groupId").getAsString();
+            // jokaiselle erilaiselle moduulille oma toteutus
+            // jos yksi taso
+            
+            JsonObject rule = root.getAsJsonObject("rule");
+            JsonArray courseUnitGroupIds = rule.getAsJsonArray("rules");
+            // tässä tapahtuu ongelma :D
+            if (courseUnitGroupIds != null) {
+            for (JsonElement groupID : courseUnitGroupIds) {
+                JsonObject groupIDObj = groupID.getAsJsonObject();
+                String groupIdString = groupIDObj.getAsJsonPrimitive("courseUnitGroupId")
+                        .getAsString();
+                for (String course : courses.keySet()) {
+                    if (course.equals(groupIdString)) {
+                        moduleCourses.add(courses.get(course));
+                    }
+                }
+            }
+        }
+        
+            // jos kaksi tasoa
+            // varmaan siis tässäkin
+            if (courseUnitGroupIds != null) {
+                for (JsonElement rulesInRules : courseUnitGroupIds) {
+                    JsonArray rules = rulesInRules.getAsJsonObject()
+                    .getAsJsonArray("rules");
+                    if (rules != null) {
+                        for (JsonElement groupID : rules) {
+
+                            JsonObject groupIDObj = groupID.getAsJsonObject();
+                            String groupIDString = groupIDObj.getAsJsonPrimitive("courseUnitGroupId")
+                            .getAsString();
+                            for (String course : courses.keySet()) {
+                                if (course.equals(groupIDString)) {
+                                   moduleCourses.add(courses.get(course));
+                                }
+                            }
+
+                        }
+                    }
+            
+                }
+            }
+         Module newModule = new Module(name, code, groupId, moduleCourses);
+         return newModule;
+        }
+        
+       Module newModule = new Module("name", "code", "groupId", moduleCourses);
+       return newModule;
+    }
+    
+    public static Map<String, Module> readModulesFromJsons(List<String> files) throws FileNotFoundException {
+        
+        Map<String, Module> moduleMap = new HashMap<>();
+        
+        for(String file : files) {
+            Module module = readModuleValues(file);
+            moduleMap.put(module.getGroupId(), module);
+        }
+        return moduleMap;
+        
     }
 
     public static void main(String[] args) throws FileNotFoundException {
