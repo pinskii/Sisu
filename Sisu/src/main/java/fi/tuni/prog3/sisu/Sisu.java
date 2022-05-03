@@ -35,11 +35,11 @@ public class Sisu extends Application {
         Text emptytitle = new Text();
         grid.add(emptytitle, 0, 1, 2, 1);
 
-        Label name = new Label("Nimi: ");
-        grid.add(name, 0, 2);
+        Label nameLabel = new Label("Nimi: ");
+        grid.add(nameLabel, 0, 2);
 
-        Label number = new Label("Opiskelijanumero: ");
-        grid.add(number, 0, 3);
+        Label numberLabel = new Label("Opiskelijanumero: ");
+        grid.add(numberLabel, 0, 3);
 
         TextField inputName = new TextField();
         grid.add(inputName, 1, 2);
@@ -47,18 +47,19 @@ public class Sisu extends Application {
         TextField inputNum = new TextField();
         grid.add(inputNum, 1, 3);
 
-        HBox hbBtn = new HBox(10);
-        hbBtn.setAlignment(Pos.BASELINE_RIGHT);
-        grid.add(hbBtn, 1, 4);
+        HBox hbox = new HBox(10);
+        hbox.setAlignment(Pos.BASELINE_RIGHT);
+        grid.add(hbox, 1, 4);
 
         Button btn = new Button("Seuraava");
-        hbBtn.getChildren().add(btn);
+        hbox.getChildren().add(btn);
 
         Button exitBtn = new Button("Eiku");
-        hbBtn.getChildren().add(exitBtn);
+        hbox.getChildren().add(exitBtn);
 
-        Label error = new Label();
-        grid.add(error,0,5,2,1);
+        Label errorLabel = new Label();
+        errorLabel.setTextFill(Color.color(1, 0, 0));
+        grid.add(errorLabel,0,5,2,1);
 
         stage.setScene(firstScene);
 
@@ -71,8 +72,7 @@ public class Sisu extends Application {
             @Override
             public void handle(ActionEvent e) {
                 if(inputName.getText().length() == 0 || inputNum.getText().length() == 0) {
-                    error.setText("Tietoja puuttuu!");
-                    error.setTextFill(Color.color(1, 0, 0));
+                    errorLabel.setText("Tietoja puuttuu!");
                 }
                 else {
                     stage.setScene(mainScene);
