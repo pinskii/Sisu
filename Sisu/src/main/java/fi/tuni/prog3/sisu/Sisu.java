@@ -2,7 +2,6 @@ package fi.tuni.prog3.sisu;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.FileNotFoundException;
@@ -19,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -149,8 +147,7 @@ public class Sisu extends Application {
     
     private static Course readCourseValues(String jsonFile) 
             throws FileNotFoundException {
-        
-        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile))
+        JsonObject root = JsonParser.parseReader(new FileReader("json/courseunits/"+jsonFile))
                 .getAsJsonObject();
         String code = root.getAsJsonPrimitive("code").getAsString();
         JsonObject nameObj = root.getAsJsonObject("name");
@@ -163,6 +160,7 @@ public class Sisu extends Application {
         Course newCourse = new Course(name, code, minCredit, maxCredit, groupId);
         System.out.print(newCourse.getName());
         System.out.print(newCourse.getCode());
+
         return newCourse;
     }
     
@@ -181,7 +179,7 @@ public class Sisu extends Application {
             throws FileNotFoundException {
         Map<String, Course> courses = readCoursesFromJsons(courseFileNames);
         ArrayList<Course> moduleCourses = new ArrayList<>();
-        JsonObject root = JsonParser.parseReader(new FileReader(jsonFile))
+        JsonObject root = JsonParser.parseReader(new FileReader("json/modules/"+jsonFile))
                 .getAsJsonObject();
         String type = root.getAsJsonPrimitive("type").getAsString();
         if (!(type.equals("DegreeProgramme"))) {
