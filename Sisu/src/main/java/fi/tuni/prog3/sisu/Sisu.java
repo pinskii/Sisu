@@ -19,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -57,6 +58,8 @@ public class Sisu extends Application {
     @Override
     public void start(Stage stage) throws FileNotFoundException {
 
+        
+        
         stage.setTitle("Sisu");
 
         // Asetussivu
@@ -65,15 +68,18 @@ public class Sisu extends Application {
         stage.setScene(firstScene);
 
         Text scenetitle = new Text("Opiskelijan tiedot:");
+        scenetitle.setFont(Font.font ("arial", 14));
         grid.add(scenetitle, 0, 0, 2, 1);
 
         Text emptytitle = new Text();
         grid.add(emptytitle, 0, 1, 2, 1);
 
         Label nameLabel = new Label("Nimi: ");
+        nameLabel.setFont(Font.font ("arial", 14));
         grid.add(nameLabel, 0, 2);
 
         Label numberLabel = new Label("Opiskelijanumero: ");
+        numberLabel.setFont(Font.font ("arial", 14));
         grid.add(numberLabel, 0, 3);
 
         TextField inputName = new TextField();
@@ -87,9 +93,11 @@ public class Sisu extends Application {
         grid.add(hbox, 1, 4);
 
         Button btn = new Button("Seuraava");
+        btn.setFont(Font.font ("arial", 14));
         hbox.getChildren().add(btn);
 
         Button exitBtn = new Button("Eiku");
+        exitBtn.setFont(Font.font ("arial", 14));
         hbox.getChildren().add(exitBtn);
 
         Label errorLabel = new Label();
@@ -116,25 +124,31 @@ public class Sisu extends Application {
         });
         
         Text mainscenetitle = new Text("Tutkintorakenne:");
+        mainscenetitle.setFont(Font.font ("arial", 14));
         grid1.add(mainscenetitle, 0, 0, 2, 1);
 
         Map<String, Course> courses = readCoursesFromJsons(courseFileNames);
         Map<String, Module> modules = readModulesFromJsons(moduleFileNames);
         
         int i = 1;
+        int j = 2;
         
         for (var module : modules.values()) {
             ArrayList<Course> moduleCourses = module.getCourses();
             Text moduleinfo = new Text(module.getName());
+            moduleinfo.setFont(Font.font ("arial", 14));
             grid1.add(moduleinfo, 0, i, 2, 1);
-            int j = 2;
+            
+            i++;
+            j++;
             for(var course : moduleCourses) {
             
                 Text courseinfo = new Text("   " + course.getCode() + " " + course.getName() 
                         + " " + course.getMaxCredit());
+                courseinfo.setFont(Font.font ("arial", 14));
                 grid1.add(courseinfo, 0, j, 2, 1);
-                i++;
-                j++;
+                i+=10;
+                j+=10;
             }
         }
         
@@ -181,68 +195,76 @@ public class Sisu extends Application {
         ArrayList<Course> moduleCourses = new ArrayList<>();
         JsonObject root = JsonParser.parseReader(new FileReader("json/modules/"+jsonFile))
                 .getAsJsonObject();
-        String type = root.getAsJsonPrimitive("type").getAsString();
-        if (!(type.equals("DegreeProgramme"))) {
+           
+        JsonObject nameObj = root.getAsJsonObject("name");
+        String name = nameObj.getAsJsonPrimitive("fi").getAsString();
             
-            JsonObject nameObj = root.getAsJsonObject("name");
-            String name = nameObj.getAsJsonPrimitive("fi").getAsString();
+        String code = "";
             
-            String code = "";
+        if (!(root.get("code").isJsonNull())) {
+            code = root.getAsJsonPrimitive("code").getAsString();
+        }
             
-            if (!(root.get("code").isJsonNull())) {
-                code = root.getAsJsonPrimitive("code").getAsString();
-            }
+        String groupId = root.getAsJsonPrimitive("groupId").getAsString();
+        // jokaiselle erilaiselle moduulille oma toteutus
             
-            
-            String groupId = root.getAsJsonPrimitive("groupId").getAsString();
-            // jokaiselle erilaiselle moduulille oma toteutus
-            // jos yksi taso
-            
-            JsonObject rule = root.getAsJsonObject("rule");
-            JsonArray courseUnitGroupIds = rule.getAsJsonArray("rules");
-            // tässä tapahtuu ongelma :D
-            if (courseUnitGroupIds != null) {
-            for (JsonElement groupID : courseUnitGroupIds) {
-                JsonObject groupIDObj = groupID.getAsJsonObject();
-                String groupIdString = groupIDObj.getAsJsonPrimitive("courseUnitGroupId")
-                        .getAsString();
+        // jos yksi taso            
+        JsonObject rule = root.getAsJsonObject("rule");
+        JsonArray units = rule.getAsJsonArray("rules");
+        // tässä tapahtuu ongelma :D
+        if(units != null){
+        for (JsonElement unit : units) {
+            JsonObject unitObj = unit.getAsJsonObject();
+                
+            String ruleType = unitObj.getAsJsonPrimitive("type").getAsString();
+                
+            if(ruleType.equals("CourseUnitRule")) {
+                String courseUnitGroupId = unitObj.getAsJsonPrimitive("courseUnitGroupId")
+                    .getAsString();
+                    
                 for (String course : courses.keySet()) {
-                    if (course.equals(groupIdString)) {
+                    if (course.equals(courseUnitGroupId)) {
+                        moduleCourses.add(courses.get(course));    
+                    }
+                }   
+            } 
+            if (ruleType.equals("ModuleRule")) {
+                String moduleGroupId = unitObj.getAsJsonPrimitive("moduleGroupId")
+                    .getAsString();
+                    
+                for (String course : courses.keySet()) {
+                    if (course.equals(moduleGroupId)) {
                         moduleCourses.add(courses.get(course));
                     }
-                }
+                }   
             }
-        }
-        
-            // jos kaksi tasoa
-            // varmaan siis tässäkin
-            if (courseUnitGroupIds != null) {
-                for (JsonElement rulesInRules : courseUnitGroupIds) {
-                    JsonArray rules = rulesInRules.getAsJsonObject()
-                    .getAsJsonArray("rules");
-                    if (rules != null) {
-                        for (JsonElement groupID : rules) {
-
-                            JsonObject groupIDObj = groupID.getAsJsonObject();
-                            String groupIDString = groupIDObj.getAsJsonPrimitive("courseUnitGroupId")
-                            .getAsString();
-                            for (String course : courses.keySet()) {
-                                if (course.equals(groupIDString)) {
-                                   moduleCourses.add(courses.get(course));
-                                }
-                            }
-
-                        }
-                    }
             
+            if(unitObj.has("rules")) {
+                JsonArray deeperUnits = unitObj.getAsJsonArray("rules");
+                
+                for(JsonElement deeperUnit : deeperUnits) {
+                    JsonObject deeperUnitObj = deeperUnit.getAsJsonObject();
+                    
+                    String deeperRuleType = unitObj.getAsJsonPrimitive("type").getAsString();
+                
+                    if(deeperRuleType.equals("CourseUnitRule")) {
+                        String courseUnitGroupId = deeperUnitObj.getAsJsonPrimitive("courseUnitGroupId")
+                            .getAsString();
+
+                        for (String course : courses.keySet()) {
+                            if (course.equals(courseUnitGroupId)) {
+                                moduleCourses.add(courses.get(course));    
+                            }
+                        }   
+                    }    
+                    
                 }
             }
-         Module newModule = new Module(name, code, groupId, moduleCourses);
-         return newModule;
+        }     
         }
-        
-       Module newModule = new Module("name", "code", "groupId", moduleCourses);
-       return newModule;
+
+        Module newModule = new Module(name, code, groupId, moduleCourses);
+        return newModule;
     }
     
     public static Map<String, Module> readModulesFromJsons(List<String> files) throws FileNotFoundException {
