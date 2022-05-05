@@ -11,18 +11,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -96,7 +91,7 @@ public class Sisu extends Application {
         HBox hbox = new HBox(10);
         hbox.setAlignment(Pos.BASELINE_RIGHT);
         grid.add(hbox, 1, 4);
-
+        
         Button btn = new Button("Seuraava");
         btn.setFont(Font.font ("arial", 14));
         hbox.getChildren().add(btn);
@@ -108,8 +103,7 @@ public class Sisu extends Application {
         Label errorLabel = new Label();
         errorLabel.setTextFill(Color.color(1, 0, 0));
         grid.add(errorLabel,0,5,2,1);
-
-
+        
         // Päänäkymä
         GridPane grid1 = new GridPane();
         Scene mainScene = new Scene(grid1,640, 480);
@@ -137,7 +131,6 @@ public class Sisu extends Application {
         for(var trolli : modules.values()) {
             addCoursesAndModulesUnderUnits(trolli, moduleFileNames);
         }
-        
         
         int i = 1;
         int j = 2;
@@ -203,6 +196,7 @@ public class Sisu extends Application {
         return courseMap;
     }
     
+    // luetaan ensin kaikki moduulit
     private static Module readModuleValues(String jsonFile) 
             throws FileNotFoundException {
         ArrayList<Course> moduleCourses = new ArrayList<>();
@@ -224,6 +218,7 @@ public class Sisu extends Application {
         return newModule;
     }
     
+    //lisätään kurssit ja moduulit aiemmin luettujen moduulien alle
     public static void addCoursesAndModulesUnderUnits(Module module, List<String> jsonFiles) 
             throws FileNotFoundException {
         
