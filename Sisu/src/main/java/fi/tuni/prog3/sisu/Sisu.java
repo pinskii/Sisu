@@ -234,7 +234,9 @@ public class Sisu extends Application {
             // jos yksi taso            
             JsonObject rule = root.getAsJsonObject("rule");
             JsonArray units = rule.getAsJsonArray("rules");
-            // tässä tapahtuu ongelma :D
+            JsonObject units2 = rule.getAsJsonObject("rule");
+            
+            // polku rule->rules
             if(units != null){
             for (JsonElement unit : units) {
                 JsonObject unitObj = unit.getAsJsonObject();
@@ -262,7 +264,8 @@ public class Sisu extends Application {
                         }
                     }   
                 }
-
+                
+                // polku rule->rules->rules
                 if(unitObj.has("rules")) {
                     JsonArray deeperUnits = unitObj.getAsJsonArray("rules");
 
@@ -288,7 +291,57 @@ public class Sisu extends Application {
                 }
             }     
             }
+            // polku rule->rule
+            if(units2 != null){
+            
+            JsonObject unitObj2 = units2.getAsJsonObject();
+                
+            String ruleType2 = unitObj2.getAsJsonPrimitive("type").getAsString();
+                   
+            if (ruleType2.equals("ModuleRule")) {
+                String moduleGroupId = unitObj2.getAsJsonPrimitive("moduleGroupId")
+                    .getAsString();
+                    
+                for (String course : allStuff.keySet()) {
+                    if (course.equals(moduleGroupId)) {
+                        moduleCourses.add(allStuff.get(course));
+                    }
+                }   
+            }
+            // polku rule->rule->rules
+            if(unitObj2.has("rules")) {
+                JsonArray deeperUnits2 = unitObj2.getAsJsonArray("rules");
+                
+                for(JsonElement deeperUnit2 : deeperUnits2) {
+                    JsonObject deeperUnitObj2 = deeperUnit2.getAsJsonObject();
+                    
+                    String deeperRuleType2 = unitObj2.getAsJsonPrimitive("type").getAsString();
+                
+                    if(deeperRuleType2.equals("CourseUnitRule")) {
+                        String courseUnitGroupId2 = deeperUnitObj2.getAsJsonPrimitive("courseUnitGroupId")
+                            .getAsString();
 
+                        for (String course : allStuff.keySet()) {
+                            if (course.equals(courseUnitGroupId2)) {
+                                moduleCourses.add(allStuff.get(course));    
+                            }
+                        }   
+                    }    
+                    if(deeperRuleType2.equals("ModuleUnitRule")) {
+                        String moduleGroupId2 = deeperUnitObj2.getAsJsonPrimitive("courseUnitGroupId")
+                            .getAsString();
+
+                        for (String course : allStuff.keySet()) {
+                            if (course.equals(moduleGroupId2)) {
+                                moduleCourses.add(allStuff.get(course));    
+                            }
+                        }   
+                    }    
+                }
+            }
+        }
+
+           
             if(type.equals("DegreeProgramme")) {
                 JsonObject dpRule = rule.getAsJsonObject("rule");
                 JsonArray dpRulee = dpRule.getAsJsonArray("rules");
