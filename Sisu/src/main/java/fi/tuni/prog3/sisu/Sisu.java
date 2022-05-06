@@ -139,7 +139,7 @@ public class Sisu extends Application {
             for(var course : moduleCourses) {
                 if (course != null) {
                     
-                Text courseinfo = new Text("   " + course.getCode() 
+                Text courseinfo = new Text("   " + course.getCode()
                         + " " + course.getName() 
                         + " " + course.getMaxCredit());
                 courseinfo.setFont(Font.font ("arial", 14));
@@ -184,7 +184,7 @@ public class Sisu extends Application {
         return newCourse;
     }
     
-    public static Map<String, Course> readCoursesFromJsons(List<String> files) 
+    private static Map<String, Course> readCoursesFromJsons(List<String> files)
         throws FileNotFoundException {
         Map<String, Course> courseMap = new HashMap<>();
         ArrayList<Course> moduleCourses = new ArrayList<>();
@@ -222,7 +222,7 @@ public class Sisu extends Application {
     }
     
     //lisätään kurssit ja moduulit aiemmin luettujen moduulien alle
-    public static void addCoursesAndModulesUnderUnits(Module module, 
+    private static void addCoursesAndModulesUnderUnits(Module module,
             List<String> jsonFiles) 
             throws FileNotFoundException {
         
@@ -361,7 +361,7 @@ public class Sisu extends Application {
         }
     }
     
-    public static Map<String, Module> readModulesFromJsons(List<String> files) 
+    private static Map<String, Module> readModulesFromJsons(List<String> files)
             throws FileNotFoundException {
         
         Map<String, Module> moduleMap = new HashMap<>();

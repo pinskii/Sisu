@@ -6,7 +6,6 @@ public class Student {
     private String name;
     private String number;
     private String studyProgram;
-    private String orientation;
     private ArrayList<String> courses;
 
     Student(String name, String number) {
@@ -24,10 +23,6 @@ public class Student {
 
     public void setStudyProgram(String studyProgram) {
         this.studyProgram = studyProgram;
-    }
-
-    public void setOrientation(String orientation) {
-        this.orientation = orientation;
     }
 
     public void addCourse(Course course) {
