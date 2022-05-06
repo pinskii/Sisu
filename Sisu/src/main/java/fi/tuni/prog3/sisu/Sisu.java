@@ -15,9 +15,11 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -103,29 +105,18 @@ public class Sisu extends Application {
         Label errorLabel = new Label();
         errorLabel.setTextFill(Color.color(1, 0, 0));
         grid.add(errorLabel,0,5,2,1);
-        
+
         // Päänäkymä
         GridPane grid1 = new GridPane();
-        Scene mainScene = new Scene(grid1,640, 480);
-
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent e) {
-                if(inputName.getText().length() == 0 || 
-                        inputNum.getText().length() == 0) {
-                    errorLabel.setText("Tietoja puuttuu!");
-                }
-                else {  
-                    stage.setScene(mainScene);
-                }
-            }
-        });
+        ScrollPane scrollPane = new ScrollPane(grid1);
+        VBox vBox = new VBox(scrollPane, exitBtn);
+        Scene mainScene = new Scene(vBox,640, 480);
         
         Text mainscenetitle = new Text("Tutkintorakenne:");
         mainscenetitle.setFont(Font.font ("arial", 14));
         grid1.add(mainscenetitle, 0, 0, 2, 1);
 
+        //Moduulien käsittelyä
         Map<String, Course> courses = readCoursesFromJsons(courseFileNames);
         Map<String, Module> modules = readModulesFromJsons(moduleFileNames);
                
@@ -158,10 +149,18 @@ public class Sisu extends Application {
             }
             }
         }
-        
+
+        btn.setOnAction(e -> {
+            if (inputName.getText().length() == 0 ||
+                    inputNum.getText().length() == 0) {
+                errorLabel.setText("Tietoja puuttuu!");
+            } else {
+                stage.setScene(mainScene);
+            }
+        });
+
         exitBtn.setOnAction((event) -> {stage.close();});
         stage.setOnCloseRequest((event) -> { Platform.exit();});
-
 
         stage.show();
     }
@@ -194,9 +193,6 @@ public class Sisu extends Application {
             Course course = readCourseValues(file);
             courseMap.put(course.getGroupId(), course);
             allStuff.put(course.getGroupId(), course);
-        }
-        for (var course : allStuff.values()) {
-            System.out.print(course);
         }
         return courseMap;
     }
